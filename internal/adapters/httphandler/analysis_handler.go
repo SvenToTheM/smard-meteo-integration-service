@@ -63,6 +63,14 @@ func (h *AnalysisHandler) GetAnalysis(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Assumption: The primary use case requires short-term analysis (up to 7 days).
+	// This limit ensures fast response times and prevents external API rate limits.
+	if end.Sub(start) > 7*24*time.Hour {
+		slog.Warn("Requested date range exceeds 7 days limit", slog.Time("start", start), slog.Time("end", end))
+		http.Error(w, "Maximum allowed date range is 7 days", http.StatusBadRequest)
+		return
+	}
+
 	results, err := h.service.Analyze(r.Context(), start, end, all)
 	if err != nil {
 		slog.Error("Service analysis failed", slog.Time("start", start), slog.Time("end", end), slog.Any("error", err))
