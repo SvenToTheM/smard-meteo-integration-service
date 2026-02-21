@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	FilterConsumption   = "4169"
+	FilterConsumption   = "410"
 	FilterWindOffshore  = "1225"
 	FilterWindOnshore   = "4067"
 	FilterSolar         = "4068"
@@ -44,24 +44,30 @@ func NewClient(baseURL string) *Client {
 
 // fetches and aggregates consumption and renewable generation
 func (c *Client) GetGridData(ctx context.Context, start, end time.Time) ([]domain.GridState, error) {
-	// 1. Resolve correct file timestamp from SMARD Index
+	
+	// Resolve correct file timestamp from SMARD Index
 	fileTS, err := c.getRelevantTimestamp(ctx, FilterConsumption, start)
+
 	if err != nil {
 		slog.Error("Failed to resolve SMARD timestamp index", slog.Any("error", err))
 		return nil, fmt.Errorf("failed to fetch timestamp index: %w", err)
 	}
 
 	slog.Debug("Starting to fetch SMARD load profile", slog.String("filter", FilterConsumption))
+	
 	// Fetch load profile: Consumption
 	consumption, err := c.fetch(ctx, FilterConsumption, fileTS)
+
 	if err != nil {
 		slog.Error("Critical failure: unable to fetch consumption data", slog.Any("error", err))
 		return nil, fmt.Errorf("failed to fetch consumption: %w", err)
 	}
 
 	slog.Debug("Fetching renewable generation data", slog.Int("filter_count", len(renewableFilters)))
+	
 	// Fetch and aggregate all renewable sources
 	totalRenewables := make(map[int64]float64)
+
 	for _, filter := range renewableFilters {
 		data, err := c.fetch(ctx, filter, fileTS)
 		if err != nil {
@@ -97,7 +103,7 @@ func (c *Client) GetGridData(ctx context.Context, start, end time.Time) ([]domai
 			IsCovered:           gen >= consVal, // Core business logic
 		})
 	}
-	
+	slog.Info("results", results)
 	return results, nil
 }
 
@@ -107,10 +113,13 @@ func (c *Client) getRelevantTimestamp(ctx context.Context, filter string, target
 	url := fmt.Sprintf("%s/chart_data/%s/DE/index_hour.json", c.baseURL, filter)
 
 	req, _ := http.NewRequestWithContext(ctx, "GET", url, nil)
+
 	resp, err := c.httpClient.Do(req)
+
 	if err != nil {
 		return 0, err
 	}
+
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
@@ -123,7 +132,9 @@ func (c *Client) getRelevantTimestamp(ctx context.Context, filter string, target
 	}
 
 	targetMilli := target.UnixMilli()
+
 	var closestTS int64
+
 	for _, ts := range index.Timestamps {
 		if ts <= targetMilli {
 			closestTS = ts
@@ -145,7 +156,9 @@ func (c *Client) fetch(ctx context.Context, filter string, fileTS int64) (map[in
 	slog.Debug("Executing SMARD HTTP request", slog.String("url", url), slog.String("filter", filter))
 	
 	req, _ := http.NewRequestWithContext(ctx, "GET", url, nil)
+
 	resp, err := c.httpClient.Do(req)
+	
 	if err != nil {
 		slog.Error("HTTP request failed", slog.String("url", url), slog.Any("error", err))
 		return nil, err
