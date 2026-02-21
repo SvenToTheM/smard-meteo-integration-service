@@ -26,7 +26,7 @@ func NewGridService(e ports.EnergyProvider, w ports.WeatherProvider, lat, lon fl
 	}
 }
 
-func (s *GridService) Analyze(ctx context.Context, start, end time.Time) ([]domain.EnrichedData, error) {
+func (s *GridService) Analyze(ctx context.Context, start, end time.Time, all bool) ([]domain.EnrichedData, error) {
 	slog.Info("Fetching energy data", slog.Time("start", start), slog.Time("end", end))
 	energyData, err := s.energyProvider.GetGridData(ctx, start, end)
 	if err != nil {
@@ -42,10 +42,10 @@ func (s *GridService) Analyze(ctx context.Context, start, end time.Time) ([]doma
 	}
 
 	slog.Info("Merging data and checking coverage", slog.Int("energy_points", len(energyData)), slog.Int("weather_points", len(weatherData)))
-	return s.mergeAndCheck(energyData, weatherData), nil
+	return s.mergeAndCheck(energyData, weatherData, all), nil
 }
 
-func (s *GridService) mergeAndCheck(energy []domain.GridState, weather []domain.WeatherState) []domain.EnrichedData {
+func (s *GridService) mergeAndCheck(energy []domain.GridState, weather []domain.WeatherState, all bool) []domain.EnrichedData {
 	weatherMap := make(map[int64]*domain.WeatherState, len(weather))
 	// use timestamp as key
 	for i := range weather {
@@ -57,8 +57,7 @@ func (s *GridService) mergeAndCheck(energy []domain.GridState, weather []domain.
 
 	for _, e := range energy {
 		// Core logic, if generation >= consumption
-		// TODO: Optional http path param
-		if e.GenerationRenewable >= e.Consumption {
+		if all || e.GenerationRenewable >= e.Consumption {
 
 			enriched := domain.EnrichedData{
 				GridState: e,

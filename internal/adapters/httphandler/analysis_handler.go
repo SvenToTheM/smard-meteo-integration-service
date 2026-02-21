@@ -34,10 +34,13 @@ func (h *AnalysisHandler) GetAnalysis(w http.ResponseWriter, r *http.Request) {
 
 	startStr := r.URL.Query().Get("start")
 	endStr := r.URL.Query().Get("end")
+	// Optional http path param for retrieving also the data where generation is not covering consumption
+	all := r.URL.Query().Get("all") == "false"
 
 	slog.Info("Received analysis request",
 		slog.String("start_param", startStr),
 		slog.String("end_param", endStr),
+		slog.Bool("all", all),
 		slog.String("client_ip", r.RemoteAddr),
 	)
 
@@ -54,7 +57,7 @@ func (h *AnalysisHandler) GetAnalysis(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	results, err := h.service.Analyze(r.Context(), start, end)
+	results, err := h.service.Analyze(r.Context(), start, end, all)
 	if err != nil {
 		slog.Error("Service analysis failed", slog.Time("start", start), slog.Time("end", end), slog.Any("error", err))
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)

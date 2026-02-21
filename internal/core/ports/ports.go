@@ -16,5 +16,5 @@ type WeatherProvider interface {
 }
 
 type AnalysisService interface {
-	Analyze(ctx context.Context, start, end time.Time) ([]domain.EnrichedData, error)
+	Analyze(ctx context.Context, start, end time.Time, all bool) ([]domain.EnrichedData, error)
 }
