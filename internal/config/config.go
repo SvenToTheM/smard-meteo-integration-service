@@ -19,7 +19,7 @@ func LoadConfig() *Config {
 	return &Config{
 		Port:         getEnv("PORT", "8080"),
 		SmardBaseURL: getEnv("SMARD_BASE_URL", "https://www.smard.de/app"),
-		MeteoBaseURL: getEnv("METEO_BASE_URL", "https://archive-api.open-meteo.com/v1"), // For past dates
+		MeteoBaseURL: getEnv("METEO_BASE_URL", "https://archive-api.open-meteo.com/v1/archive"), // For past dates
 		DefaultLat:   getEnvAsFloat("DEFAULT_LAT", 51.1),
 		DefaultLon:   getEnvAsFloat("DEFAULT_LON", 10.4),
 	}

@@ -12,7 +12,7 @@ type EnergyProvider interface {
 }
 
 type WeatherProvider interface {
-	GetWeather(ctx context.Context, lat, lon float64, start, end time.Time) ([]domain.WeatherState, error)
+	GetWeatherData(ctx context.Context, lat, lon float64, start, end time.Time) ([]domain.WeatherState, error)
 }
 
 type AnalysisService interface {

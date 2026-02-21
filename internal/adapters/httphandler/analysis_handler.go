@@ -16,17 +16,17 @@ type AnalysisHandler struct {
 
 // Constructor for handler (DI)
 func NewAnalysisHandler(service ports.AnalysisService) *AnalysisHandler {
-	return &AnalysisHandler {
+	return &AnalysisHandler{
 		service: service,
 	}
 }
 
-func (h *AnalysisHandler) GetAnalysis(w http.ResponseWriter, r *http.Request){
+func (h *AnalysisHandler) GetAnalysis(w http.ResponseWriter, r *http.Request) {
 	startStr := r.URL.Query().Get("start")
 	endStr := r.URL.Query().Get("end")
 
-	slog.Info("Received analysis request", 
-		slog.String("start_param", startStr), 
+	slog.Info("Received analysis request",
+		slog.String("start_param", startStr),
 		slog.String("end_param", endStr),
 		slog.String("client_ip", r.RemoteAddr),
 	)

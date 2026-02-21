@@ -12,13 +12,13 @@ import (
 )
 
 const (
-	FilterConsumption   = "410"
-	FilterWindOffshore  = "1225"
-	FilterWindOnshore   = "4067"
-	FilterSolar         = "4068"
-	FilterBiomass       = "4066"
-	FilterHydro         = "1226"
-	FilterOtherRenew    = "1228"
+	FilterConsumption  = "410"
+	FilterWindOffshore = "1225"
+	FilterWindOnshore  = "4067"
+	FilterSolar        = "4068"
+	FilterBiomass      = "4066"
+	FilterHydro        = "1226"
+	FilterOtherRenew   = "1228"
 )
 
 var renewableFilters = []string{
@@ -31,7 +31,7 @@ type smardIndexResponse struct {
 }
 
 type Client struct {
-	httpClient *http.Client 
+	httpClient *http.Client
 	baseURL    string
 }
 
@@ -44,27 +44,25 @@ func NewClient(baseURL string) *Client {
 
 // fetches and aggregates consumption and renewable generation
 func (c *Client) GetGridData(ctx context.Context, start, end time.Time) ([]domain.GridState, error) {
-	
+
 	// Resolve correct file timestamp from SMARD Index
 	fileTS, err := c.getRelevantTimestamp(ctx, FilterConsumption, start)
-
 	if err != nil {
 		slog.Error("Failed to resolve SMARD timestamp index", slog.Any("error", err))
 		return nil, fmt.Errorf("failed to fetch timestamp index: %w", err)
 	}
 
 	slog.Debug("Starting to fetch SMARD load profile", slog.String("filter", FilterConsumption))
-	
+
 	// Fetch load profile: Consumption
 	consumption, err := c.fetch(ctx, FilterConsumption, fileTS)
-
 	if err != nil {
 		slog.Error("Critical failure: unable to fetch consumption data", slog.Any("error", err))
 		return nil, fmt.Errorf("failed to fetch consumption: %w", err)
 	}
 
 	slog.Debug("Fetching renewable generation data", slog.Int("filter_count", len(renewableFilters)))
-	
+
 	// Fetch and aggregate all renewable sources
 	totalRenewables := make(map[int64]float64)
 
@@ -72,11 +70,11 @@ func (c *Client) GetGridData(ctx context.Context, start, end time.Time) ([]domai
 		data, err := c.fetch(ctx, filter, fileTS)
 		if err != nil {
 			slog.Warn("Skipping renewable source due to fetch error", slog.String("filter", filter), slog.Any("error", err))
-			// Resilience: If one source fails (e.g., biomass API is down), 
+			// Resilience: If one source fails (e.g., biomass API is down),
 			// we skip it but keep the rest of the generation data.
-			continue 
+			continue
 		}
-		
+
 		// Sum up values for each timestamp
 		for ts, val := range data {
 			totalRenewables[ts] += val
@@ -88,14 +86,14 @@ func (c *Client) GetGridData(ctx context.Context, start, end time.Time) ([]domai
 	// Merge consumption and aggregated generation
 	for ts, consVal := range consumption {
 		t := time.UnixMilli(ts).UTC()
-		
+
 		// Filter data points outside the requested time window
 		if t.Before(start) || t.After(end) {
 			continue
 		}
 
-		gen := totalRenewables[ts] 
-		
+		gen := totalRenewables[ts]
+
 		results = append(results, domain.GridState{
 			Timestamp:           t,
 			Consumption:         consVal,
@@ -103,23 +101,21 @@ func (c *Client) GetGridData(ctx context.Context, start, end time.Time) ([]domai
 			IsCovered:           gen >= consVal, // Core business logic
 		})
 	}
-	slog.Info("results", results)
+
 	return results, nil
 }
 
-// getRelevantTimestamp fetches index_hour.json to find the 
+// getRelevantTimestamp fetches index_hour.json to find the
 // start timestamp of the file containing the requested date
 func (c *Client) getRelevantTimestamp(ctx context.Context, filter string, target time.Time) (int64, error) {
 	url := fmt.Sprintf("%s/chart_data/%s/DE/index_hour.json", c.baseURL, filter)
 
-	req, _ := http.NewRequestWithContext(ctx, "GET", url, nil)
+	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 
 	resp, err := c.httpClient.Do(req)
-
 	if err != nil {
 		return 0, err
 	}
-
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
@@ -154,11 +150,10 @@ func (c *Client) fetch(ctx context.Context, filter string, fileTS int64) (map[in
 	url := fmt.Sprintf("%s/chart_data/%s/DE/%s_DE_hour_%d.json", c.baseURL, filter, filter, fileTS)
 
 	slog.Debug("Executing SMARD HTTP request", slog.String("url", url), slog.String("filter", filter))
-	
-	req, _ := http.NewRequestWithContext(ctx, "GET", url, nil)
+
+	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 
 	resp, err := c.httpClient.Do(req)
-	
 	if err != nil {
 		slog.Error("HTTP request failed", slog.String("url", url), slog.Any("error", err))
 		return nil, err

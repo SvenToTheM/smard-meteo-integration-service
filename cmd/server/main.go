@@ -21,10 +21,8 @@ func main() {
 
 	cfg := config.LoadConfig()
 
-	extHttpClient := &http.Client{}
-
 	sClient := smard.NewClient(cfg.SmardBaseURL)
-	mClient := openmeteo.NewClient(cfg.MeteoBaseURL, extHttpClient)
+	mClient := openmeteo.NewClient(cfg.MeteoBaseURL)
 
 	analysisService := services.NewGridService(sClient, mClient, cfg.DefaultLat, cfg.DefaultLon)
 
@@ -35,7 +33,7 @@ func main() {
 	// register Route
 	mux.HandleFunc("/api/v1/analysis", handler.GetAnalysis)
 
-	slog.Info("Starting service", 
+	slog.Info("Starting service",
 		slog.String("port", cfg.Port),
 		slog.String("smard_url", cfg.SmardBaseURL),
 		slog.String("meteo_url", cfg.MeteoBaseURL),

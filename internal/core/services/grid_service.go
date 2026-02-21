@@ -34,7 +34,7 @@ func (s *GridService) Analyze(ctx context.Context, start, end time.Time) ([]doma
 	}
 
 	slog.Info("Fetching weather data", slog.Float64("lat", s.lat), slog.Float64("lon", s.lon))
-	weatherData, err := s.weatherProvider.GetWeather(ctx, s.lat, s.lon, start, end)
+	weatherData, err := s.weatherProvider.GetWeatherData(ctx, s.lat, s.lon, start, end)
 	if err != nil {
 		slog.Warn("Failed to fetch weather data, continuing without weather context", slog.Any("error", err))
 		// Resilience: continuing without weather data
