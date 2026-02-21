@@ -20,6 +20,6 @@ type WeatherState struct {
 
 // represents the enriched data of a specific point in time
 type EnrichedData struct {
-	GridState    GridState    `json:"grid_state"`
-	WeatherState WeatherState `json:"weather_state"`
+	GridState    GridState     `json:"grid_state"`
+	WeatherState *WeatherState `json:"weather_state,omitempty"`
 }

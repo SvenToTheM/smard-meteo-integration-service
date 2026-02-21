@@ -22,6 +22,16 @@ func NewAnalysisHandler(service ports.AnalysisService) *AnalysisHandler {
 }
 
 func (h *AnalysisHandler) GetAnalysis(w http.ResponseWriter, r *http.Request) {
+	// Enable CORS for frontend
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
 	startStr := r.URL.Query().Get("start")
 	endStr := r.URL.Query().Get("end")
 

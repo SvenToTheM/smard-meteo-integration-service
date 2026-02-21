@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"log/slog"
+	"sort"
 	"time"
 
 	"github.com/sventothem/smard-meteo-integration-service/internal/core/domain"
@@ -45,7 +46,35 @@ func (s *GridService) Analyze(ctx context.Context, start, end time.Time) ([]doma
 }
 
 func (s *GridService) mergeAndCheck(energy []domain.GridState, weather []domain.WeatherState) []domain.EnrichedData {
+	weatherMap := make(map[int64]*domain.WeatherState, len(weather))
+	// use timestamp as key
+	for i := range weather {
+		w := &weather[i]
+		weatherMap[w.Timestamp.Unix()] = w
+	}
 
-	// TODO:Combine  & check if Gen >= Cons
-	return nil
+	var results []domain.EnrichedData
+
+	for _, e := range energy {
+		// Core logic, if generation >= consumption
+		// TODO: Optional http path param
+		if e.GenerationRenewable >= e.Consumption {
+
+			enriched := domain.EnrichedData{
+				GridState: e,
+			}
+
+			// Add weather data if timestamp is avaiable
+			if w, ok := weatherMap[e.Timestamp.Unix()]; ok {
+				enriched.WeatherState = w
+			}
+
+			results = append(results, enriched)
+		}
+		sort.Slice(results, func(i, j int) bool {
+			return results[i].GridState.Timestamp.After(results[j].GridState.Timestamp)
+		})
+	}
+
+	return results
 }
