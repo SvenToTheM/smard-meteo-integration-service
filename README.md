@@ -23,10 +23,10 @@ Wir nutzen folgende Filter für die Identifizierung erneuerbarer Energien:
 
 ### Open-Meteo API
 Integration von meteorologischen Daten für den Analyse-Zeitraum:
-- **Wind Speed (120m)**: Für die Korrelation mit Windkraft-Erzeugung.
+- **Wind Speed (100m)**: Für die Korrelation mit Windkraft-Erzeugung.
   - **Repräsentativer Durchschnitt**: Es trifft die Mitte zwischen dem Altbestand (80m) und den modernen Anlagen (160m+).
   - **Offshore-Kompatibilität**: Es passt sehr gut zu den gängigen Offshore-Nabenhöhen.
-  - **Physikalische Korrelation**: Der Wind in 120m Höhe hat eine höhere Wahrscheinlichkeit, proportional zur tatsächlich gemessenen Einspeisung (SMARD) zu sein, als der Wind in 180m oder 10m.
+  - **Physikalische Korrelation**: Der Wind in 100m Höhe hat eine höhere Wahrscheinlichkeit, proportional zur tatsächlich gemessenen Einspeisung (SMARD) zu sein, als der Wind in 180m oder 10m.
 
 > ![Wind Speed](./images/EnerconSizes_de.png)
 > Quelle: https://de.wikipedia.org/wiki/Windkraftanlage
@@ -53,7 +53,12 @@ go run cmd/server/main.go
 ## API Dokumentation
 
 ### Analyse Endpunkt
-Gibt Datenpunkte zurück, in denen die Erzeugung >= Verbrauch war.
+Gibt Datenpunkte zurück, in denen die Erzeugung >= Verbrauch war (bzw. alle Datenpunkte falls `all=true`).
 
-**Anfrage:**
-`GET /api/v1/analysis?start=2024-01-01T00:00:00Z&end=2024-01-02T00:00:00Z`
+**Parameter:**
+- `start` (RFC3339)
+- `end` (RFC3339)
+- `all` (optional, Default: false): Wenn `true`, werden alle Datenpunkte inkl. Nichterreichung zurückgegeben.
+
+**Beispiel-Anfrage:**
+`GET /api/v1/analysis?start=2024-01-01T00:00:00Z&end=2024-01-02T00:00:00Z&all=true`

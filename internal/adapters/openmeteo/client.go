@@ -35,7 +35,7 @@ func (c *Client) GetWeatherData(ctx context.Context, lat, lon float64, start, en
 			"&longitude=%.4f"+
 			"&start_date=%s"+
 			"&end_date=%s"+
-			"&hourly=temperature_2m,wind_speed_120m,shortwave_radiation",
+			"&hourly=temperature_2m,wind_speed_100m,shortwave_radiation",
 		c.baseURL, lat, lon, startDateStr, endDateStr)
 
 	slog.Debug("Executing Open-Meteo Http reqeuest", slog.String("url", url))
@@ -80,7 +80,7 @@ func (c *Client) GetWeatherData(ctx context.Context, lat, lon float64, start, en
 		results = append(results, domain.WeatherState{
 			Timestamp:      t.UTC(),
 			Temperature:    raw.Hourly.Temperature2m[i],
-			WindSpeed:      raw.Hourly.WindSpeed120m[i],
+			WindSpeed:      raw.Hourly.WindSpeed100m[i],
 			SolarRadiation: raw.Hourly.ShortwaveRadiation[i],
 		})
 	}
