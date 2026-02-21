@@ -1,0 +1,96 @@
+body {
+  background: #0f172a;
+  color: #f8fafc;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.container {
+  max-width: 900px;
+  margin: 3rem auto;
+  padding: 0 1rem;
+}
+
+h1 {
+  text-align: center;
+  font-size: 2.75rem;
+  background: linear-gradient(45deg, #00f2fe, #4facfe);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 2rem;
+}
+
+.card {
+  background: rgba(30, 41, 59, 0.5);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.controls {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+input[type="datetime-local"] {
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(15, 23, 42, 0.6);
+  color: white;
+  font-size: 0.95rem;
+}
+
+input[type="datetime-local"]:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
+label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: #cbd5e1;
+}
+
+button {
+  padding: 0.6rem 1.5rem;
+  border-radius: 8px;
+  border: none;
+  background: linear-gradient(to right, #3b82f6, #2563eb);
+  color: white;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+button:hover {
+  filter: brightness(1.2);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+th, td {
+  padding: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+th {
+  color: #94a3b8;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+}
+
+.weather {
+  color: #94a3b8;
+  font-size: 0.9rem;
+}

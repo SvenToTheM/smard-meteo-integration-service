@@ -1,0 +1,38 @@
+:root {
+  --primary-glow: radial-gradient(rgba(1, 65, 255, 0.4), rgba(1, 65, 255, 0));
+  --secondary-glow: radial-gradient(
+    rgba(255, 255, 255, 0.3),
+    rgba(255, 255, 255, 0)
+  );
+
+  --background-start: #000000;
+  --background-end: #0a0a0a;
+
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  color-scheme: dark;
+  color: rgba(255, 255, 255, 0.87);
+  background: linear-gradient(
+      to bottom,
+      transparent,
+      rgb(0, 0, 0)
+    )
+    rgb(10, 10, 10);
+  
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  min-height: 100vh;
+  background-color: #0f172a; /* Slate 900 */
+  background-image: 
+    radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
+    radial-gradient(at 50% 0%, hsla(225,39%,30%,0.2) 0, transparent 50%), 
+    radial-gradient(at 100% 0%, hsla(339,49%,30%,0.2) 0, transparent 50%);
+  background-attachment: fixed;
+  color: #f8fafc;
+}
