@@ -57,6 +57,12 @@ func (h *AnalysisHandler) GetAnalysis(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if start.After(end) {
+		slog.Warn("Invalid date range", slog.Time("start", start), slog.Time("end", end))
+		http.Error(w, "Start date cannot be after end date", http.StatusBadRequest)
+		return
+	}
+
 	results, err := h.service.Analyze(r.Context(), start, end, all)
 	if err != nil {
 		slog.Error("Service analysis failed", slog.Time("start", start), slog.Time("end", end), slog.Any("error", err))
