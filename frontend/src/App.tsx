@@ -28,7 +28,7 @@ export default function App() {
         <div className="controls">
           <input type="datetime-local" value={start} onChange={e => setStart(e.target.value)} />
           <input type="datetime-local" value={end} onChange={e => setEnd(e.target.value)} />
-          <label><input type="checkbox" checked={all} onChange={e => setAll(e.target.checked)} /> All Data</label>
+          <label><input type="checkbox" checked={all} onChange={e => setAll(e.target.checked)} />Only Covered by Renewables</label>
           <button onClick={fetchAnalysis} disabled={loading}>{loading ? '...' : 'Analyze'}</button>
         </div>
         
