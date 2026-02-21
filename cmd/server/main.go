@@ -7,16 +7,21 @@ import (
 	httpHandler "github.com/sventothem/smard-meteo-integration-service/internal/adapters/httphandler"
 	"github.com/sventothem/smard-meteo-integration-service/internal/adapters/openmeteo"
 	"github.com/sventothem/smard-meteo-integration-service/internal/adapters/smard"
+	"github.com/sventothem/smard-meteo-integration-service/internal/config"
 	"github.com/sventothem/smard-meteo-integration-service/internal/core/services"
 )
 
 func main() {
 	logger := slog.Default()
-	
-	sClient := smard.NewClient()
-	mClient := openmeteo.NewClient()
 
-	analysisService := services.NewGridService(sClient, mClient)
+	cfg := config.LoadConfig()
+
+	extHttpClient := &http.Client{}
+
+	sClient := smard.NewClient(cfg.SmardBaseURL, extHttpClient)
+	mClient := openmeteo.NewClient(cfg.MeteoBaseURL, extHttpClient)
+
+	analysisService := services.NewGridService(sClient, mClient, cfg.DefaultLat, cfg.DefaultLon)
 
 	handler := httpHandler.NewAnalysisHandler(analysisService)
 
@@ -25,9 +30,9 @@ func main() {
 	// register Route
 	mux.HandleFunc("/api/v1/analysis", handler.GetAnalysis)
 
-	logger.Info("Service gestartet", "port", 8080)
+	logger.Info("Service gestartet", "port", cfg.Port)
 
-	if err := http.ListenAndServe(":8080", mux); err != nil {
+	if err := http.ListenAndServe(":"+cfg.Port, mux); err != nil {
 		slog.Error("Failed to start server", "error", err)
 	}
 }
