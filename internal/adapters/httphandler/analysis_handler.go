@@ -25,22 +25,33 @@ func (h *AnalysisHandler) GetAnalysis(w http.ResponseWriter, r *http.Request){
 	startStr := r.URL.Query().Get("start")
 	endStr := r.URL.Query().Get("end")
 
+	slog.Info("Received analysis request", 
+		slog.String("start_param", startStr), 
+		slog.String("end_param", endStr),
+		slog.String("client_ip", r.RemoteAddr),
+	)
+
 	start, err := time.Parse(time.RFC3339, startStr)
 	if err != nil {
+		slog.Warn("Invalid start date", slog.String("input", startStr), slog.Any("error", err))
 		http.Error(w, "Invalid start date format (RFC3339 required)", http.StatusBadRequest)
 		return
 	}
 	end, err := time.Parse(time.RFC3339, endStr)
 	if err != nil {
+		slog.Warn("Invalid end date", slog.String("input", endStr), slog.Any("error", err))
 		http.Error(w, "Invalid end date format (RFC3339 required)", http.StatusBadRequest)
 		return
 	}
-	// Call service with r.Context() for timeouts)
+
 	results, err := h.service.Analyze(r.Context(), start, end)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		slog.Error("Service analysis failed", slog.Time("start", start), slog.Time("end", end), slog.Any("error", err))
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
+
+	slog.Info("Successfully processed analysis request", slog.Int("results_count", len(results)))
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(results)
