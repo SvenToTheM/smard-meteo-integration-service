@@ -36,3 +36,13 @@ db/
 # Temporary files
 tmp/
 temp/
+
+# Frontend
+frontend/node_modules
+frontend/dist
+frontend/dist-ssr
+frontend/*.local
+frontend/.vscode/*
+frontend/.idea
+frontend/*.sw?
+frontend/*.vite
